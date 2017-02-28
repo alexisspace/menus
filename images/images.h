@@ -65,10 +65,10 @@
 
 //extern Graphics_Image TI_platform_bar_red4BPP_UNCOMP;
 //extern Graphics_Image Primitives_Button4BPP_UNCOMP;
-//extern Graphics_Image Images_Button4BPP_UNCOMP;
+extern Graphics_Image Images_Button4BPP_UNCOMP;
 //extern Graphics_Image lcd_color_320x2408BPP_UNCOMP;
-extern Graphics_Image TI_logo_150x1501BPP_COMP_RLE4;
+//extern Graphics_Image TI_logo_150x1501BPP_COMP_RLE4;
 extern Graphics_Image jmi_logo4BPP_COMP_RLE4;
-extern Graphics_Image couple8BPP_COMP_RLE8;
+//extern Graphics_Image couple8BPP_COMP_RLE8;
 
 #endif // __IMAGES_H__

@@ -283,7 +283,7 @@ ILI9341_DriverInit(void)
   wait_ms(120);       // 120ms needed (see description of sleep-out-cmd)
   
     MEM_WRITE;
-    //ILI9341_DriverClearScreen(&g_sILI9341_Driver, C_FUCHSIA);
+    //ILI9341_DriverClearScreen(&g_sILI9341_Driver, GRAPHICS_COLOR_WHITE);
     DISPLAY_ON;
     MEM_WRITE;
 

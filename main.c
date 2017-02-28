@@ -42,10 +42,8 @@
 
 //Touch screen context
 touch_context g_sTouchContext;
-Graphics_ImageButton primitiveButton;
 Graphics_ImageButton imageButton;
 Graphics_Button yesButton;
-Graphics_Button noButton;
 
 // Graphic library context
 Graphics_Context g_sContext;
@@ -58,6 +56,8 @@ void boardInit(void);
 void clockInit(void);
 void timerInit(void);
 void initializeDemoButtons(void);
+void drawInitScreen(void);
+void drawMainView(void);
 void drawMainMenu(void);
 void runPrimitivesDemo(void);
 void runImagesDemo(void);
@@ -78,111 +78,67 @@ void main(void)
     boardInit();
     clockInit();
     timerInit();
-    //initializeDemoButtons();
+    initializeDemoButtons();
 
     // LCD setup using Graphics Library API calls
     ILI9341_DriverInit();
     Graphics_initContext(&g_sContext, &g_sILI9341_Driver);
-    Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_AQUA);
-    Graphics_setFont(&g_sContext, &g_sFontCmss20);
-    Graphics_clearDisplay(&g_sContext);
 
-    //Delay();
-    //touch_initInterface();
+    drawInitScreen();
+    Delay();
 
-    drawMainMenu();
+    //Enter main view
+    drawMainView();
+
     //runImagesDemo();
     //runPrimitivesDemo();
-    while(1);	// End program here
-
-    // Loop to detect touch
+    while(1){
+        _nop();
+    }	// End program here
 
 }
-/*
-void initializeDemoButtons(void)
+
+void drawInitScreen(void)
 {
-    // Initiliaze primitives Demo Button
-    primitiveButton.xPosition = 20;
-    primitiveButton.yPosition = 50;
-    primitiveButton.borderWidth = 5;
-    primitiveButton.selected = false;
-    primitiveButton.imageWidth = Primitives_Button4BPP_UNCOMP.xSize;
-    primitiveButton.imageHeight = Primitives_Button4BPP_UNCOMP.ySize;
-    primitiveButton.borderColor = GRAPHICS_COLOR_WHITE;
-    primitiveButton.selectedColor = GRAPHICS_COLOR_RED;
-    primitiveButton.image = &Primitives_Button4BPP_UNCOMP;
+    Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_WHITE);
+    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
+    Graphics_setFont(&g_sContext, &g_sFontCmss20b);
+    Graphics_clearDisplay(&g_sContext);
 
-    // Initiliaze images Demo Button
-    imageButton.xPosition = 180;
-    imageButton.yPosition = 50;
-    imageButton.borderWidth = 5;
-    imageButton.selected = false;
-    imageButton.imageWidth = Primitives_Button4BPP_UNCOMP.xSize;
-    imageButton.imageHeight = Primitives_Button4BPP_UNCOMP.ySize;
-    imageButton.borderColor = GRAPHICS_COLOR_WHITE;
-    imageButton.selectedColor = GRAPHICS_COLOR_RED;
-    imageButton.image = &Images_Button4BPP_UNCOMP;
+    Graphics_drawStringCentered(&g_sContext, "Juergensen Marine Inc.",
+                                AUTO_STRING_LENGTH,
+                                159,
+                                140,
+                                GRAPHICS_OPAQUE_TEXT);
 
-    yesButton.xMin = 80;
-    yesButton.xMax = 150;
-    yesButton.yMin = 80;
-    yesButton.yMax = 120;
-    yesButton.borderWidth = 1;
-    yesButton.selected = false;
-    yesButton.fillColor = GRAPHICS_COLOR_RED;
-    yesButton.borderColor = GRAPHICS_COLOR_RED;
-    yesButton.selectedColor = GRAPHICS_COLOR_BLACK;
-    yesButton.textColor = GRAPHICS_COLOR_BLACK;
-    yesButton.selectedTextColor = GRAPHICS_COLOR_RED;
-    yesButton.textXPos = 100;
-    yesButton.textYPos = 90;
-    yesButton.text = "YES";
-    yesButton.font = &g_sFontCm18;
-
-    noButton.xMin = 180;
-    noButton.xMax = 250;
-    noButton.yMin = 80;
-    noButton.yMax = 120;
-    noButton.borderWidth = 1;
-    noButton.selected = false;
-    noButton.fillColor = GRAPHICS_COLOR_RED;
-    noButton.borderColor = GRAPHICS_COLOR_RED;
-    noButton.selectedColor = GRAPHICS_COLOR_BLACK;
-    noButton.textColor = GRAPHICS_COLOR_BLACK;
-    noButton.selectedTextColor = GRAPHICS_COLOR_RED;
-    noButton.textXPos = 200;
-    noButton.textYPos = 90;
-    noButton.text = "NO";
-    noButton.font = &g_sFontCm18;
+    Graphics_drawImage(&g_sContext, &jmi_logo4BPP_COMP_RLE4, 100,10);
 }
-*/
+
+
+void drawMainView(void)
+{
+    Graphics_Rectangle hBar = { 0, 0, 319, 5}; // 10 pixel width horizontal bar
+
+    Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
+    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_BLANCHED_ALMOND);
+    Graphics_clearDisplay(&g_sContext);
+
+    hBar.yMin += 118; // Add Y offset
+    hBar.yMax += 118;
+    Graphics_fillRectangle(&g_sContext, &hBar);
+
+    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
+    Graphics_drawLineH(&g_sContext, 0, 319, 0);
+    Graphics_drawLineV(&g_sContext, 0, 0, 239);
+
+
+}
 void drawMainMenu(void)
 {
     Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
     Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_WHITE);
     Graphics_clearDisplay(&g_sContext);
-    Graphics_drawStringCentered(&g_sContext, "Juergensen Marine Inc.",
-                                AUTO_STRING_LENGTH,
-                                159,
-                                140,
-								GRAPHICS_OPAQUE_TEXT);
 
-    // Draw TI banner at the bottom of screnn
-    //Graphics_drawImage(&g_sContext,  &TI_platform_bar_red4BPP_UNCOMP,0,
-                       //Graphics_getDisplayHeight(&g_sContext) - TI_platform_bar_red4BPP_UNCOMP.ySize);
-
-    Graphics_drawImage(&g_sContext, &jmi_logo4BPP_COMP_RLE4, 100,10);
-    //Graphics_drawImage(&g_sContext, &couple8BPP_COMP_RLE8, 80,10);
-
-
-
-    // Draw Primitives image button
-    //Graphics_drawImageButton(&g_sContext, &primitiveButton);
-
-    // Draw Images image button
-    //Graphics_drawImageButton(&g_sContext, &imageButton);
-    //Graphics_drawLineV(&g_sContext, 60, 60, 240); // Vertical line
-    //Graphics_drawLineH(&g_sContext, 0, 320, 100); //
 }
 
 void runPrimitivesDemo(void)
@@ -227,7 +183,7 @@ void runPrimitivesDemo(void)
     // Text draws with inverted foreground color to become visible
     Graphics_drawStringCentered(&g_sContext, "Invert Text", AUTO_STRING_LENGTH,
                                 225, 180, TRANSPARENT_TEXT);
-    return;
+
     Delay();
     Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_RED);
     Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
@@ -316,79 +272,37 @@ void runPrimitivesDemo(void)
     //drawRestarDemo();
 }
 
-void runImagesDemo(void)
+
+void initializeDemoButtons(void)
 {
-    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_RED);
-    Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
-    Graphics_clearDisplay(&g_sContext);
-    Graphics_drawStringCentered(&g_sContext, "Draw Uncompressed Image",
-                                AUTO_STRING_LENGTH, 159, 200, TRANSPARENT_TEXT);
-    Delay();
-    // Draw Image on the display
-    //Graphics_drawImage(&g_sContext, &lcd_color_320x2408BPP_UNCOMP, 0, 0);
-    Delay();
-    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
-    Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_WHITE);
-    Graphics_clearDisplay(&g_sContext);
-    Graphics_drawStringCentered(&g_sContext, "Draw RLE4 compressed Image",
-                                AUTO_STRING_LENGTH, 159, 200, TRANSPARENT_TEXT);
-    Delay();
-    Graphics_drawImage(&g_sContext, &TI_logo_150x1501BPP_COMP_RLE4, 85, 45);
-    Delay();
 
-    g_ranDemo = true;
+    // Initiliaze images Demo Button
+    imageButton.xPosition = 82;
+    imageButton.yPosition = 0;
+    imageButton.borderWidth = 5;
+    imageButton.selected = false;
+    imageButton.imageWidth = Images_Button4BPP_UNCOMP.xSize;
+    imageButton.imageHeight = Images_Button4BPP_UNCOMP.ySize;
+    imageButton.borderColor = GRAPHICS_COLOR_WHITE;
+    imageButton.selectedColor = GRAPHICS_COLOR_RED;
+    imageButton.image = &Images_Button4BPP_UNCOMP;
 
-    drawRestarDemo();
-}
+    yesButton.xMin = 0;
+    yesButton.xMax = 49;
+    yesButton.yMin = 0;
+    yesButton.yMax = 18;
+    yesButton.borderWidth = 1;
+    yesButton.selected = false;
+    yesButton.fillColor = GRAPHICS_COLOR_GRAY;
+    yesButton.borderColor = GRAPHICS_COLOR_BLACK;
+    yesButton.selectedColor = GRAPHICS_COLOR_BLACK;
+    yesButton.textColor = GRAPHICS_COLOR_BLACK;
+    yesButton.selectedTextColor = GRAPHICS_COLOR_WHITE;
+    yesButton.textXPos = 0;
+    yesButton.textYPos = 0;
+    yesButton.text = "YES";
+    yesButton.font = &g_sFontCm18b;
 
-void drawRestarDemo(void)
-{
-    g_ranDemo = false;
-    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_RED);
-    Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
-    Graphics_clearDisplay(&g_sContext);
-    Graphics_drawStringCentered(&g_sContext, "Would you like to go back",
-                                AUTO_STRING_LENGTH,
-                                159,
-                                45,
-                                TRANSPARENT_TEXT);
-    Graphics_drawStringCentered(&g_sContext, "to the main menu?",
-                                AUTO_STRING_LENGTH,
-                                159,
-                                65,
-                                TRANSPARENT_TEXT);
-
-    // Draw Primitives image button
-    Graphics_drawButton(&g_sContext, &yesButton);
-
-    // Draw Images image button
-    Graphics_drawButton(&g_sContext, &noButton);
-
-    do
-    {
-        touch_updateCurrentTouch(&g_sTouchContext);
-        if(Graphics_isButtonSelected(&noButton, g_sTouchContext.x,
-                                     g_sTouchContext.y))
-        {
-            Graphics_drawSelectedButton(&g_sContext, &noButton);
-            g_ranDemo = true;
-        }
-        else
-        {
-            if(g_ranDemo)
-            {
-                Graphics_drawReleasedButton(&g_sContext, &noButton);
-                g_ranDemo = false;
-            }
-        }
-    }
-    while(!Graphics_isButtonSelected(&yesButton, g_sTouchContext.x,
-                                     g_sTouchContext.y));
-
-    Graphics_drawSelectedButton(&g_sContext, &yesButton);
-
-    g_ranDemo = true;
-    __delay_cycles(10000000);
 }
 
 void boardInit(void)
