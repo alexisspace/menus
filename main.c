@@ -128,8 +128,8 @@ void drawMainView(void)
     Graphics_fillRectangle(&g_sContext, &hBar);
 
     Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
-    Graphics_drawLineH(&g_sContext, 0, 319, 0);
-    Graphics_drawLineV(&g_sContext, 0, 0, 239);
+    //Graphics_drawLineH(&g_sContext, 0, 319, 0);
+    //Graphics_drawLineV(&g_sContext, 0, 0, 239);
 
 
 }

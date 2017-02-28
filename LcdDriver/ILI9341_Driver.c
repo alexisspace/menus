@@ -535,7 +535,7 @@ ILI9341_DriverLineDrawH(void *pvDisplayData, int lX1, int lX2,
 	  set_instruction(1,c1>>8);
 	  set_instruction(1,c1&0xFF);
 	  MEM_WRITE;
-	  while(lX1++<lX2)
+	  while(lX1++<=lX2)
 	  {
 	    WriteData(ulValue);
 	  }
@@ -583,7 +583,7 @@ ILI9341_DriverLineDrawV(void *pvDisplayData, int lX, int lY1,
 	  set_instruction(1,rc>>8);
 	  set_instruction(1,rc&0xFF);
 	  MEM_WRITE;
-	  while(lY1++<lY2)
+	  while(lY1++<=lY2)
 	  {
 	    WriteData(ulValue);
 	  }
@@ -696,7 +696,7 @@ ILI9341_DriverClearScreen(void *pvDisplayData, unsigned int ulValue)
 {
 	// This fills the entire display to clear it
 	// Some LCD drivers support a simple command to clear the display
-	int y0 = 0;
+	int y0 = -1;
 #if defined(PORTRAIT) || defined(PORTRAIT_FLIP)
 	while(y0++ <= (LCD_Y_SIZE - 1))
 	{
