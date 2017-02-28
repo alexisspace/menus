@@ -40,6 +40,11 @@
 #include "LcdDriver/ILI9341_Driver.h"
 #include "Images/images.h"
 
+// Colors for graphics
+#define TITLE_COLOR    GRAPHICS_COLOR_FOREST_GREEN
+#define BAR_COLOR       GRAPHICS_COLOR_FOREST_GREEN
+#define DATA_COLOR      GRAPHICS_COLOR_WHITE
+
 //Touch screen context
 touch_context g_sTouchContext;
 Graphics_ImageButton imageButton;
@@ -105,27 +110,107 @@ void drawInitScreen(void)
     Graphics_setFont(&g_sContext, &g_sFontCmss20b);
     Graphics_clearDisplay(&g_sContext);
 
+    // Draw welcome logo
+    Graphics_drawImage(&g_sContext, &jmi_logo4BPP_COMP_RLE4, 100,10);
+
     Graphics_drawStringCentered(&g_sContext, "Juergensen Marine Inc.",
                                 AUTO_STRING_LENGTH,
                                 159,
                                 140,
                                 GRAPHICS_OPAQUE_TEXT);
 
-    Graphics_drawImage(&g_sContext, &jmi_logo4BPP_COMP_RLE4, 100,10);
 }
 
 
 void drawMainView(void)
 {
-    Graphics_Rectangle hBar = { 0, 0, 319, 5}; // 10 pixel width horizontal bar
+    Graphics_Rectangle hBar = { 0, 0, 319, 2}; // 10 pixel width horizontal bar
 
     Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
-    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_BLANCHED_ALMOND);
+    Graphics_setForegroundColor(&g_sContext, TITLE_COLOR);
+    Graphics_setFont(&g_sContext, &g_sFontCmss16b);
     Graphics_clearDisplay(&g_sContext);
 
-    hBar.yMin += 118; // Add Y offset
-    hBar.yMax += 118;
+    // Status information area
+    Graphics_drawString(&g_sContext, "Status: ",
+                                AUTO_STRING_LENGTH, 0, 0, GRAPHICS_TRANSPARENT_TEXT);
+
+
+    // First line of information
+    Graphics_setFont(&g_sContext, &g_sFontCmss18b);
+    Graphics_drawStringCentered(&g_sContext, "Surface Time",
+                                AUTO_STRING_LENGTH, 53, 70, GRAPHICS_TRANSPARENT_TEXT);
+    Graphics_drawStringCentered(&g_sContext, "Dive Time",
+                                AUTO_STRING_LENGTH, 155, 70, GRAPHICS_TRANSPARENT_TEXT);
+    Graphics_drawStringCentered(&g_sContext, "Max Depth",
+                                AUTO_STRING_LENGTH, 255, 70, GRAPHICS_TRANSPARENT_TEXT);
+
+    // First line data
+    Graphics_setForegroundColor(&g_sContext, DATA_COLOR);
+    Graphics_setFont(&g_sContext, &g_sFontCmss22b);
+    Graphics_drawStringCentered(&g_sContext, "999:99",
+                                AUTO_STRING_LENGTH, 53, 90, GRAPHICS_TRANSPARENT_TEXT);
+
+    Graphics_setFont(&g_sContext, &g_sFontCmss28b);
+    Graphics_drawStringCentered(&g_sContext, "99:99",
+                                AUTO_STRING_LENGTH, 155, 95, GRAPHICS_TRANSPARENT_TEXT);
+    Graphics_drawStringCentered(&g_sContext, "9999 ft",
+                                AUTO_STRING_LENGTH, 255, 95, GRAPHICS_TRANSPARENT_TEXT);
+
+    // ppO2 sensors readings
+    Graphics_setForegroundColor(&g_sContext, BAR_COLOR);
+    hBar.yMin += 115; // Add Y offset
+    hBar.yMax += 115;
     Graphics_fillRectangle(&g_sContext, &hBar);
+
+    Graphics_setForegroundColor(&g_sContext, TITLE_COLOR);
+    Graphics_setFont(&g_sContext, &g_sFontCmss18b);
+    Graphics_drawStringCentered(&g_sContext, "ppO2 Readings",
+                                AUTO_STRING_LENGTH, 150, 130, GRAPHICS_TRANSPARENT_TEXT);
+
+    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_LIGHT_GREEN);
+    Graphics_setFont(&g_sContext, &g_sFontCmss44b);
+    Graphics_drawStringCentered(&g_sContext, "1.00",
+                                AUTO_STRING_LENGTH, 53, 160, GRAPHICS_TRANSPARENT_TEXT);
+    Graphics_drawStringCentered(&g_sContext, "1.00",
+                                AUTO_STRING_LENGTH, 159, 160, GRAPHICS_TRANSPARENT_TEXT);
+    Graphics_drawStringCentered(&g_sContext, "1.00",
+                                AUTO_STRING_LENGTH, 265, 160, GRAPHICS_TRANSPARENT_TEXT);
+
+
+
+    // Third line of information
+    Graphics_setForegroundColor(&g_sContext, DATA_COLOR);
+    Graphics_setFont(&g_sContext, &g_sFontCmss18b);
+    Graphics_drawStringCentered(&g_sContext, "-0.4-",
+                                AUTO_STRING_LENGTH, 90, 204, GRAPHICS_TRANSPARENT_TEXT);
+
+    Graphics_setForegroundColor(&g_sContext, TITLE_COLOR);
+    Graphics_drawStringCentered(&g_sContext, "Batt.",
+                                AUTO_STRING_LENGTH, 20, 204, GRAPHICS_TRANSPARENT_TEXT);
+
+    Graphics_drawStringCentered(&g_sContext, "TTS",
+                                AUTO_STRING_LENGTH, 160, 204, GRAPHICS_TRANSPARENT_TEXT);
+    Graphics_drawStringCentered(&g_sContext, "NO STOP",
+                                AUTO_STRING_LENGTH, 234, 204, GRAPHICS_TRANSPARENT_TEXT);
+    Graphics_drawStringCentered(&g_sContext, "NDL",
+                                AUTO_STRING_LENGTH, 298, 204, GRAPHICS_TRANSPARENT_TEXT);
+
+    // Third line of data
+    Graphics_setForegroundColor(&g_sContext, DATA_COLOR);
+    Graphics_setFont(&g_sContext, &g_sFontCmss22b);
+    Graphics_drawStringCentered(&g_sContext, " 1.5",
+                                AUTO_STRING_LENGTH, 20, 229, GRAPHICS_TRANSPARENT_TEXT);
+    Graphics_drawStringCentered(&g_sContext, "999° C",
+                                AUTO_STRING_LENGTH, 90, 229, GRAPHICS_TRANSPARENT_TEXT);
+    Graphics_drawStringCentered(&g_sContext, "999",
+                                AUTO_STRING_LENGTH, 160, 229, GRAPHICS_TRANSPARENT_TEXT);
+    Graphics_drawStringCentered(&g_sContext, "9@999",
+                                AUTO_STRING_LENGTH, 234, 229, GRAPHICS_TRANSPARENT_TEXT);
+    Graphics_drawStringCentered(&g_sContext, "5",
+                                AUTO_STRING_LENGTH, 298, 229, GRAPHICS_TRANSPARENT_TEXT);
+
+
 
     Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
     //Graphics_drawLineH(&g_sContext, 0, 319, 0);
@@ -360,5 +445,5 @@ void timerInit()
 }
 
 void Delay(){
-    __delay_cycles(SYSTEM_CLOCK_SPEED * 3);
+    __delay_cycles(SYSTEM_CLOCK_SPEED * 2);
 }
