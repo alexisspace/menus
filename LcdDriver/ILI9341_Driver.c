@@ -527,7 +527,7 @@ ILI9341_DriverLineDrawH(void *pvDisplayData, int lX1, int lX2,
 	  set_instruction(0,0x2A);
 	  set_instruction(1,rc>>8);
 	  set_instruction(1,rc&0xFF);
-	  // Same end colunm to increment cursor donwards
+	  // Same end column to increment cursor downwards
 	  set_instruction(1,rc>>8);
 	  set_instruction(1,rc&0xFF);
 
@@ -617,9 +617,10 @@ ILI9341_DriverRectFill(void *pvDisplayData, const tRectangle *pRect,
   int y0 = pRect->sYMin;
   int y1 = pRect->sYMax;
   
-  while(y0++ <= y1)
+  while(y0 <= y1)
   {
     ILI9341_DriverLineDrawH(pvDisplayData, x0, x1, y0, ulValue);
+    y0++;
   }
 }
 

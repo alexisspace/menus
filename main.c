@@ -1,34 +1,6 @@
-/* --COPYRIGHT--,BSD
- * Copyright (c) 2016, Texas Instruments Incorporated
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * *  Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *
- * *  Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * *  Neither the name of Texas Instruments Incorporated nor the names of
- *    its contributors may be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
- * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
- * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * --/COPYRIGHT--*/
+/* Tigershark example menus*/
+
+
 #include <msp430f5529.h>
 #include "grlib.h"
 #include "button.h"
@@ -39,6 +11,7 @@
 #include "touch_F5529LP.h"
 #include "LcdDriver/ILI9341_Driver.h"
 #include "Images/images.h"
+#include <math.h>
 
 // Colors for graphics
 #define TITLE_COLOR    GRAPHICS_COLOR_DARK_ORANGE//GRAPHICS_COLOR_AQUA//GRAPHICS_COLOR_FOREST_GREEN
@@ -49,12 +22,16 @@
 #define DANGER_COLOR    GRAPHICS_COLOR_RED
 
 // Main Menus Colors
-#define MMENU_TITLE_COLOR               GRAPHICS_COLOR_WHITE
+#define MMENU_TITLE_COLOR               GRAPHICS_COLOR_BLACK//GRAPHICS_COLOR_WHITE
 #define MMENU_BACKGROUND_COLOR          GRAPHICS_COLOR_BLACK//0x00C5D1D7
-#define MMENU_TITLE_BACKGROUND_COLOR    GRAPHICS_COLOR_DARK_RED
-#define MMENU_BOTTOM_BAR_COLOR          GRAPHICS_COLOR_DARK_RED//0x008CADAE//GRAPHICS_COLOR_DARK_GRAY//GRAPHICS_COLOR_LIGHT_SEA_GREEN
+#define MMENU_TITLE_BACKGROUND_COLOR    GRAPHICS_COLOR_DARK_ORANGE//GRAPHICS_COLOR_DARK_RED
+#define MMENU_BOTTOM_BAR_COLOR          GRAPHICS_COLOR_DARK_ORANGE//GRAPHICS_COLOR_DARK_RED//0x008CADAE//GRAPHICS_COLOR_DARK_GRAY//GRAPHICS_COLOR_LIGHT_SEA_GREEN
 #define MMENU_LEFT_BAR_COLOR            GRAPHICS_COLOR_DARK_RED
 #define MMENU_DATA_FONT_COLOR           GRAPHICS_COLOR_WHITE
+
+// Screen position constants
+#define CONTEXT_MENU_BAR_POS        122
+#define CONTEXT_TOTAL_SPACE         115
 
 
 //Touch screen context
@@ -76,6 +53,9 @@ void initializeDemoButtons(void);
 void drawInitScreen(void);
 void drawMainView(void);
 void drawSystemSetupMenu(void);
+void drawInitContexMenu(void);
+void drawContextMenu(void);
+void DelayCycles(unsigned int k);
 void runPrimitivesDemo(void);
 void runImagesDemo(void);
 void drawRestarDemo(void);
@@ -104,13 +84,16 @@ void main(void)
     drawInitScreen();
     Delay();
 
+    // Example main menu
+    drawSystemSetupMenu();
+    Delay();
+
     //Enter main view
     drawMainView();
     Delay();
 
-    drawSystemSetupMenu();
-    Delay();
-
+    // Effect for drawing context menu
+    drawInitContexMenu();
 
     //runImagesDemo();
     //runPrimitivesDemo();
@@ -160,7 +143,7 @@ void drawMainView(void)
                                 AUTO_STRING_LENGTH, 53, 9, GRAPHICS_TRANSPARENT_TEXT);
     Graphics_drawStringCentered(&g_sContext, "Dive Time",
                                 AUTO_STRING_LENGTH, 155, 9, GRAPHICS_TRANSPARENT_TEXT);
-    Graphics_drawStringCentered(&g_sContext, "Max Depth",
+    Graphics_drawStringCentered(&g_sContext, "Depth",
                                 AUTO_STRING_LENGTH, 255, 9, GRAPHICS_TRANSPARENT_TEXT);
 
     // First line data
@@ -211,8 +194,8 @@ void drawMainView(void)
     // Middle space
     Graphics_setForegroundColor(&g_sContext, TITLE_COLOR);
     Graphics_setFont(&g_sContext, &g_sFontCmss18b);
-    Graphics_drawStringCentered(&g_sContext, "Depth",
-                                AUTO_STRING_LENGTH, 35, 135, GRAPHICS_TRANSPARENT_TEXT);
+    Graphics_drawStringCentered(&g_sContext, "Max Depth",
+                                AUTO_STRING_LENGTH, 45, 135, GRAPHICS_TRANSPARENT_TEXT);
     Graphics_setForegroundColor(&g_sContext, DATA_COLOR);
     Graphics_setFont(&g_sContext, &g_sFontCmss28b);
     Graphics_drawStringCentered(&g_sContext, "9999",
@@ -226,38 +209,45 @@ void drawMainView(void)
     Graphics_setForegroundColor(&g_sContext, DATA_COLOR);
     Graphics_setFont(&g_sContext, &g_sFontCmss18b);
     Graphics_drawStringCentered(&g_sContext, "-0.4-",
-                                AUTO_STRING_LENGTH, 90, 204, GRAPHICS_TRANSPARENT_TEXT);
+                                AUTO_STRING_LENGTH, 90, 202, GRAPHICS_TRANSPARENT_TEXT);
 
     Graphics_setForegroundColor(&g_sContext, TITLE_COLOR);
     Graphics_drawStringCentered(&g_sContext, "Batt.",
-                                AUTO_STRING_LENGTH, 20, 204, GRAPHICS_TRANSPARENT_TEXT);
+                                AUTO_STRING_LENGTH, 20, 202, GRAPHICS_TRANSPARENT_TEXT);
 
     Graphics_drawStringCentered(&g_sContext, "TTS",
-                                AUTO_STRING_LENGTH, 160, 204, GRAPHICS_TRANSPARENT_TEXT);
+                                AUTO_STRING_LENGTH, 160, 202, GRAPHICS_TRANSPARENT_TEXT);
     Graphics_drawStringCentered(&g_sContext, "NO STOP",
-                                AUTO_STRING_LENGTH, 234, 204, GRAPHICS_TRANSPARENT_TEXT);
+                                AUTO_STRING_LENGTH, 234, 202, GRAPHICS_TRANSPARENT_TEXT);
     Graphics_drawStringCentered(&g_sContext, "NDL",
-                                AUTO_STRING_LENGTH, 298, 204, GRAPHICS_TRANSPARENT_TEXT);
+                                AUTO_STRING_LENGTH, 298, 202, GRAPHICS_TRANSPARENT_TEXT);
 
     // Third line of data
     Graphics_setForegroundColor(&g_sContext, DATA_COLOR);
     Graphics_setFont(&g_sContext, &g_sFontCmss22b);
     Graphics_drawStringCentered(&g_sContext, " 1.5",
-                                AUTO_STRING_LENGTH, 20, 229, GRAPHICS_TRANSPARENT_TEXT);
+                                AUTO_STRING_LENGTH, 20, 223, GRAPHICS_TRANSPARENT_TEXT);
     Graphics_drawStringCentered(&g_sContext, "999° C",
-                                AUTO_STRING_LENGTH, 90, 229, GRAPHICS_TRANSPARENT_TEXT);
+                                AUTO_STRING_LENGTH, 90, 223, GRAPHICS_TRANSPARENT_TEXT);
     Graphics_drawStringCentered(&g_sContext, "999",
-                                AUTO_STRING_LENGTH, 160, 229, GRAPHICS_TRANSPARENT_TEXT);
+                                AUTO_STRING_LENGTH, 160, 223, GRAPHICS_TRANSPARENT_TEXT);
     Graphics_drawStringCentered(&g_sContext, "9@999",
-                                AUTO_STRING_LENGTH, 234, 229, GRAPHICS_TRANSPARENT_TEXT);
+                                AUTO_STRING_LENGTH, 234, 223, GRAPHICS_TRANSPARENT_TEXT);
     Graphics_drawStringCentered(&g_sContext, "5",
-                                AUTO_STRING_LENGTH, 298, 229, GRAPHICS_TRANSPARENT_TEXT);
+                                AUTO_STRING_LENGTH, 298, 223, GRAPHICS_TRANSPARENT_TEXT);
 
+    // Bottom bar
+    Graphics_setForegroundColor(&g_sContext, BAR_COLOR);
+    hBar.yMin = 237; //
+    hBar.yMax = 239;
+    Graphics_fillRectangle(&g_sContext, &hBar);
 
+/*
+    Graphics_drawLineH(&g_sContext, 0, 339, 237);
+    Graphics_drawLineH(&g_sContext, 0, 339, 238);
+    Graphics_drawLineH(&g_sContext, 0, 339, 239);
+*/
 
-    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
-    //Graphics_drawLineH(&g_sContext, 0, 319, 0);
-    //Graphics_drawLineV(&g_sContext, 0, 0, 239);
 
 
 }
@@ -336,7 +326,7 @@ void drawSystemSetupMenu(void)
                                 AUTO_STRING_LENGTH, 25, 136, GRAPHICS_TRANSPARENT_TEXT);
 
     // Menu active item
-    Graphics_setForegroundColor(&g_sContext, MMENU_TITLE_COLOR);
+    Graphics_setForegroundColor(&g_sContext, MMENU_DATA_FONT_COLOR);
     Graphics_fillCircle (&g_sContext, 17, 98, 4);
 
     // Menu Data
@@ -354,10 +344,11 @@ void drawSystemSetupMenu(void)
     rectangle1.xMax = 310;
     rectangle1.yMin = 108;
     rectangle1.yMax = 110;
-    Graphics_setForegroundColor(&g_sContext, MMENU_TITLE_COLOR);
+    Graphics_setForegroundColor(&g_sContext, MMENU_DATA_FONT_COLOR);
     Graphics_fillRectangle (&g_sContext, &rectangle1);
 
     // Draw button function
+    Graphics_setForegroundColor(&g_sContext, MMENU_TITLE_COLOR);
     Graphics_drawStringCentered(&g_sContext, "Next",
                                 AUTO_STRING_LENGTH, 35, 225, GRAPHICS_TRANSPARENT_TEXT);
     Graphics_drawStringCentered(&g_sContext, "Select",
@@ -366,135 +357,30 @@ void drawSystemSetupMenu(void)
 
 }
 
-void runPrimitivesDemo(void)
+void drawInitContexMenu(void)
 {
-    int16_t ulIdx;
-    uint32_t color;
-
-    Graphics_Rectangle myRectangle1 = { 10, 50, 155, 120};
-    Graphics_Rectangle myRectangle2 = { 150, 100, 300, 200};
-    Graphics_Rectangle myRectangle3 = { 0, 0, 319, 239};
-
-    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_RED);
-    Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
-    Graphics_clearDisplay(&g_sContext);
-    Graphics_drawString(&g_sContext, "Draw Pixels & Lines", AUTO_STRING_LENGTH,
-                        60, 5, TRANSPARENT_TEXT);
-    Graphics_drawPixel(&g_sContext, 45, 45);
-    Graphics_drawPixel(&g_sContext, 45, 50);
-    Graphics_drawPixel(&g_sContext, 50, 50);
-    Graphics_drawPixel(&g_sContext, 50, 45);
-    Graphics_drawLine(&g_sContext, 60, 60, 200, 200);
-    Graphics_drawLine(&g_sContext, 30, 200, 200, 60);
-    Graphics_drawLine(&g_sContext, 0, Graphics_getDisplayHeight(
-                          &g_sContext) - 1,
-                      Graphics_getDisplayWidth(&g_sContext) - 1,
-                      Graphics_getDisplayHeight(&g_sContext) - 1);
-    Delay();
-    Graphics_clearDisplay(&g_sContext);
-    Graphics_drawStringCentered(&g_sContext, "Draw Rectangles",
-                                AUTO_STRING_LENGTH, 159, 15, TRANSPARENT_TEXT);
-    Graphics_drawRectangle(&g_sContext, &myRectangle1);
-    Graphics_fillRectangle(&g_sContext, &myRectangle2);
-    // Text won't be visible on screen due to transparency (foreground colors match)
-    Graphics_drawStringCentered(&g_sContext, "Opaque Text 1", AUTO_STRING_LENGTH,
-                                225, 120, OPAQUE_TEXT);
-    // Text draws foreground and background for opacity
-    Graphics_drawStringCentered(&g_sContext, "Opaque Text", AUTO_STRING_LENGTH,
-                                225, 150, OPAQUE_TEXT);
-    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
-
-    Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_RED);
-    // Text draws with inverted foreground color to become visible
-    Graphics_drawStringCentered(&g_sContext, "Invert Text", AUTO_STRING_LENGTH,
-                                225, 180, TRANSPARENT_TEXT);
-
-    Delay();
-    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_RED);
-    Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
-    // Invert the foreground and background colors
-    Graphics_fillRectangle(&g_sContext, &myRectangle3);
-    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
-    Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_RED);
-    Graphics_drawStringCentered(&g_sContext, "Invert Colors",
-                                AUTO_STRING_LENGTH, 159, 15, TRANSPARENT_TEXT);
-    Graphics_drawRectangle(&g_sContext, &myRectangle1);
-    Graphics_fillRectangle(&g_sContext, &myRectangle2);
-    // Text won't be visible on screen due to transparency
-    Graphics_drawStringCentered(&g_sContext, "Normal Text", AUTO_STRING_LENGTH,
-                                225, 120, TRANSPARENT_TEXT);
-    // Text draws foreground and background for opacity
-    Graphics_drawStringCentered(&g_sContext, "Opaque Text", AUTO_STRING_LENGTH,
-                                225, 150, OPAQUE_TEXT);
-    Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_RED);
-    Graphics_setBackgroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
-    // Text draws with inverted color to become visible
-    Graphics_drawStringCentered(&g_sContext, "Invert Text", AUTO_STRING_LENGTH,
-                                225, 180, TRANSPARENT_TEXT);
-    Delay();
-    Graphics_clearDisplay(&g_sContext);
-    Graphics_drawStringCentered(&g_sContext, "Draw Circles", AUTO_STRING_LENGTH,
-                                159, 15, TRANSPARENT_TEXT);
-    Graphics_drawCircle(&g_sContext, 100, 100, 50);
-    Graphics_fillCircle(&g_sContext, 200, 140, 70);
-    Delay();
-    Graphics_clearDisplay(&g_sContext);
-    // Add some more color
-    Graphics_setForegroundColor(&g_sContext, ClrLawnGreen);
-    Graphics_setBackgroundColor(&g_sContext, ClrBlack);
-    Graphics_clearDisplay(&g_sContext);
-    Graphics_drawStringCentered(&g_sContext, "Rainbow of Colored Lines",
-                                AUTO_STRING_LENGTH, 159, 15, TRANSPARENT_TEXT);
-    // Draw a quarter rectangle sweep of lines from red to purple.
-    for(ulIdx = 128; ulIdx >= 1; ulIdx--)
-    {
-        // Red Color
-        *((uint16_t*) (&color) + 1) = 255;
-        // Blue and Green Colors
-        *((uint16_t*) (&color)) =
-            ((((128 - ulIdx) * 255) >> 7) << ClrBlueShift);
-
-        Graphics_setForegroundColor(&g_sContext, color);
-        Graphics_drawLine(&g_sContext, 160, 200, 32, ulIdx + 72);
+    unsigned int k, k_delay;
+    // Bottom bar raising effect
+    for(k = 1; k <= CONTEXT_TOTAL_SPACE; k++){
+        Graphics_setForegroundColor(&g_sContext, BAR_COLOR);
+        Graphics_drawLineH (&g_sContext, 0, 319, 237 - k);
+        Graphics_drawLineH (&g_sContext, 0, 319, 238 - k);
+        Graphics_drawLineH (&g_sContext, 0, 319, 239 - k);
+        Graphics_setForegroundColor(&g_sContext, GRAPHICS_COLOR_BLACK);
+        Graphics_drawLineH (&g_sContext, 0, 319, 240 - k);
+        // Apply exponential delay at the end
+        if(k > 103){
+            k_delay =  exp(-0.721*k) - 1;
+        }else{
+            k_delay = k;
+        }
+        DelayCycles(k_delay);
     }
-    // Draw a quarter rectangle sweep of lines from purple to blue.
-    for(ulIdx = 128; ulIdx >= 1; ulIdx--)
-    {
-        // Red Color
-        *((uint16_t*) (&color) + 1) = (ulIdx * 255) >> 7;
-        // Blue and Green Colors
-        *((uint16_t*) (&color)) = 255 << ClrBlueShift;
+}
 
-        Graphics_setForegroundColor(&g_sContext, color);
-        Graphics_drawLine(&g_sContext, 160, 200, 160 - ulIdx, 72);
-    }
-    // Clear Red Color
-    *((uint16_t*) (&color) + 1) = 0;
-    // Draw a quarter rectangle sweep of lines from blue to teal.
-    for(ulIdx = 128; ulIdx >= 1; ulIdx--)
-    {
-        // Blue and Green Colors
-        *((uint16_t*) (&color)) =
-            ((((128 -
-                ulIdx) * 255) >> 7) << ClrGreenShift) | (255 << ClrBlueShift);
+void drawContextMenu(void)
+{
 
-        Graphics_setForegroundColor(&g_sContext, color);
-        Graphics_drawLine(&g_sContext, 160, 200, 288 - ulIdx, 72);
-    }
-    // Draw a quarter rectangle sweep of lines from teal to green.
-    for(ulIdx = 128; ulIdx >= 0; ulIdx--)
-    {
-        // Blue and Green Colors
-        *((uint16_t*) (&color)) =
-            (255 << ClrGreenShift) | (((ulIdx * 255) >> 7) << ClrBlueShift);
-
-        Graphics_setForegroundColor(&g_sContext, color);
-        Graphics_drawLine(&g_sContext, 160, 200, 288, 200 - (ulIdx));
-    }
-    Delay();
-    g_ranDemo = true;
-
-    //drawRestarDemo();
 }
 
 
@@ -586,4 +472,10 @@ void timerInit()
 
 void Delay(){
     __delay_cycles(SYSTEM_CLOCK_SPEED );
+}
+void DelayCycles(unsigned int k)
+{
+    while (k--){
+        __delay_cycles(1);
+    }
 }

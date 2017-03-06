@@ -60,6 +60,8 @@ main.obj: ../touch_F5529LP.h
 main.obj: ../LcdDriver/ILI9341_Driver.h
 main.obj: ../Images/images.h
 main.obj: C:/Users/alexis/workspace_v6_2/MSP-EXP430F5529LP_ILI9341/GrLib/grlib/grlib.h
+main.obj: C:/ti/ccsv6/tools/compiler/msp430_15.12.3.LTS/include/math.h
+main.obj: C:/ti/ccsv6/tools/compiler/msp430_15.12.3.LTS/include/_defs.h
 
 ../main.c: 
 C:/ti/ccsv6/ccs_base/msp430/include/msp430f5529.h: 
@@ -121,3 +123,5 @@ C:/Users/alexis/workspace_v6_2/MSP-EXP430F5529LP_ILI9341/driverlib/MSP430F5xx_6x
 ../LcdDriver/ILI9341_Driver.h: 
 ../Images/images.h: 
 C:/Users/alexis/workspace_v6_2/MSP-EXP430F5529LP_ILI9341/GrLib/grlib/grlib.h: 
+C:/ti/ccsv6/tools/compiler/msp430_15.12.3.LTS/include/math.h: 
+C:/ti/ccsv6/tools/compiler/msp430_15.12.3.LTS/include/_defs.h: 
